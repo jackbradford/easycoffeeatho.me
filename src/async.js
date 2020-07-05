@@ -26,7 +26,6 @@ var async = (function() {
     var send = function(options) {
 
         var url = options.url;
-        var data = encodeURIComponent(JSON.stringify(options.data));
         var fetchConfig;
         if (options.payloadIsFiles === true) {
 
@@ -38,16 +37,17 @@ var async = (function() {
         else fetchConfig = {
             method: "POST",
             headers: { 
-                'Content-Type': 'application/x-www-form-urlencoded'
+                'Accept': 'application/json',
+                'Content-Type': 'application/json',
             },
-            body: "data=" + data + "&async=1"
+            body: JSON.stringify(options.data)
         };
 
         return fetch(url, fetchConfig)
             .then(handleErrors)
             .then( (response) => { 
             
-                return response.text();
+                return response.json();
             });
     };
 
