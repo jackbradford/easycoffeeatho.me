@@ -63,7 +63,6 @@ export const serverValidateInput = (options) => {
         )
         .then(
             (response) => {
-                response = JSON.parse(response);
                 dispatch(serverValidateInputEnd(response));
             }
         )

@@ -28,11 +28,10 @@ export const attemptGenerateNewActivationLink = (userId) => {
                 userId: userId,
             }
         }).then(
-            (serverResponse) => {
-                var response = JSON.parse(serverResponse);
+            (serverData) => {
                 dispatch(generateNewActivationLinkEnd(
-                    response.data.success,
-                    response.data.message,
+                    serverData.data.success,
+                    serverData.data.message,
                 ));
             }
         )
@@ -86,12 +85,11 @@ export const attemptActivateUser = (userId, activationCode) => {
                 activationCode: activationCode
             }
         }).then(
-            (serverResponse) => {
-                var response = JSON.parse(serverResponse);
+            (serverData) => {
                 dispatch(activateUserEnd(
-                    response.data.success,
-                    response.data.userId,
-                    response.data.message
+                    serverData.data.success,
+                    serverData.data.userId,
+                    serverData.data.message
                 ));
             }
         )

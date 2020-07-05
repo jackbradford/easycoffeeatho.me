@@ -18,7 +18,6 @@ export const attemptRegisterUser = (formData) => {
         })
         .then(
             (response) => {
-                response = JSON.parse(response);
                 dispatch(registerUserEnd(response));
             }
         )
