@@ -6,6 +6,62 @@ import { auth } from './auth';
 import { async } from './async';
 import { validator } from './validator';
 
+export const STAGE_IMAGE_BEGIN = 'STAGE_IMAGE_BEGIN';
+export const STAGE_IMAGE_END = 'STAGE_IMAGE_END';
+export const STAGE_IMAGE_ERROR = 'STAGE_IMAGE_ERROR';
+
+/**
+ * `url` (string) is the address at the remote server where the image will
+ * be sent for processing.
+ *
+ */
+export const tryStageImage = (formData, url, data) => {
+
+    return (dispatch) => {
+
+        dispatch(stageImageBegin());
+        return async.request({
+            url: url,
+            data: formData,
+            payloadIsFiles: true,
+        }).then(
+            (serverResponse) => {
+                var response = JSON.parse(serverResponse);
+                dispatch(stageImageEnd(response));
+            }
+        )
+        .catch (
+            (error) => {
+                dispatch(stageImageError(error));
+            }
+        )
+    }
+}
+
+export const stageImageBegin = () => {
+
+    return {
+        type: STAGE_IMAGE_BEGIN,
+    };
+}
+
+export const stageImageEnd = (response) => {
+
+    return {
+        type: STAGE_IMAGE_END,
+        payload: response.data
+    };
+}
+
+export const stageImageError = (error) => {
+
+    return {
+        type: STAGE_IMAGE_ERROR,
+        payload: {
+            error: error
+        }
+    }
+}
 export const SUBMIT_NEW_INDIVIDUAL_BEGIN = 'SUBMIT_NEW_INDIVIDUAL_BEGIN';
 export const SUBMIT_NEW_INDIVIDUAL_END = 'SUBMIT_NEW_INDIVIDUAL_END';
 export const SUBMIT_NEW_INDIVIDUAL_ERROR = 'SUBMIT_NEW_INDIVIDUAL_ERROR';
@@ -106,14 +162,7 @@ export const updateRequiredFieldsForNewIndividual = (operation, array) => {
     }
 };
 
-export const RESET_MENU_EXPAND = 'RESET_MENU_EXPAND';
 
-export const resetMenuExpand = () => {
-
-    return {
-        type: RESET_MENU_EXPAND,
-    };
-};
 
 export const LOAD_USER_AND_APP_DATA_BEGIN = 'LOAD_USER_AND_APP_DATA_BEGIN';
 export const LOAD_USER_AND_APP_DATA_END = 'LOAD_USER_AND_APP_DATA_END';
@@ -219,148 +268,17 @@ export const checkLoginError = (error) => {
     }
 }
 
-export const ACTIVATE_USER_BEGIN = 'ACTIVATE_USER_BEGIN';
-export const ACTIVATE_USER_END = 'ACTIVATE_USER_END';
-export const ACTIVATE_USER_ERROR = 'ACTIVATE_USER_ERROR';
-export const GENERATE_NEW_ACTIVATION_LINK_BEGIN = 'GENERATE_NEW_ACTIVATION_LINK_BEGIN';
-export const GENERATE_NEW_ACTIVATION_LINK_END = 'GENERATE_NEW_ACTIVATION_LINK_END';
-export const GENERATE_NEW_ACTIVATION_LINK_ERROR = 'GENERATE_NEW_ACTIVATION_LINK_ERROR';
-export const RESET_GENERATE_NEW_ACTIVATION_LINK = 'RESET_GENERATE_NEW_ACTIVATION_LINK';
 
-export const resetGenerateNewActivationLink = () => {
-
-    return {
-        type: RESET_GENERATE_NEW_ACTIVATION_LINK
-    };
-}
-
-export const attemptGenerateNewActivationLink = (userId) => {
-
-    return (dispatch) => {
-        dispatch(generateNewActivationLinkBegin(userId));
-        return async.request({
-            url: '/index.php?ctrl=public&actn=generateNewActivationLink',
-            data: {
-                userId: userId,
-            }
-        }).then(
-            (serverResponse) => {
-                var response = JSON.parse(serverResponse);
-                dispatch(generateNewActivationLinkEnd(
-                    response.data.success,
-                    response.data.message,
-                ));
-            }
-        )
-        .catch (
-            (error) => {
-                dispatch(generateNewActivationLinkError(error));
-            }
-        )
-    }
-}
-
-export const generateNewActivationLinkBegin = (userId) => {
-
-    return {
-        type: GENERATE_NEW_ACTIVATION_LINK_BEGIN,
-        payload: {
-            userId: userId
-        }
-    };
-};
-
-export const generateNewActivationLinkEnd = (success, message) => {
-
-    return {
-        type: GENERATE_NEW_ACTIVATION_LINK_END,
-        payload: {
-            success: success,
-            message: message,
-        }
-    };
-};
-
-export const generateNewActivationLinkError = (error) => {
-
-    return {
-        type: GENERATE_NEW_ACTIVATION_LINK_ERROR,
-        payload: {
-            error: error
-        }
-    };
-};
-
-export const attemptActivateUser = (userId, activationCode) => {
-
-    return (dispatch) => {
-        dispatch(activateUserBegin(userId, activationCode));
-        return async.request({
-            url: '/activate/' + userId + '/' + activationCode,
-            data: {
-                userId: userId,
-                activationCode: activationCode
-            }
-        }).then(
-            (serverResponse) => {
-                var response = JSON.parse(serverResponse);
-                dispatch(activateUserEnd(
-                    response.data.success,
-                    response.data.userId,
-                    response.data.message
-                ));
-            }
-        )
-        .catch(
-            (error) => {
-                dispatch(activateUserError(error));
-            }
-        );
-    };
-};
-
-export const activateUserBegin = (userId, code) => {
-
-    return {
-        type: ACTIVATE_USER_BEGIN,
-        payload: {
-            userId: userId,
-            activationCode: code,
-        }
-    };
-};
-
-export const activateUserEnd = (success, userId, message) => {
-
-    return {
-        type: ACTIVATE_USER_END,
-        payload: {
-            success: success,
-            userId: userId,
-            message: message,
-        }
-    };
-};
-
-export const activateUserError = (error) => {
-
-    return {
-        type: ACTIVATE_USER_ERROR,
-        payload: { error: error }
-    };
-};
-
-export const REGISTER_USER_BEGIN = 'REGISTER_USER_BEGIN';
-export const REGISTER_USER_END = 'REGISTER_USER_END';
-export const REGISTER_USER_ERROR = 'REGISTER_USER_ERROR';
+/**
+ * Actions for /register
+ *
+ * TODO:
+ * determine whether this is removeable.
+ *
+ */
+export const RESET_REGISTER_NAME = 'RESET_REGISTER_NAME';
 export const RESET_REGISTER_FORM_STATUS = 'RESET_REGISTER_FORM_STATUS';
 export const RESET_REGISTER_FORM = 'RESET_REGISTER_FORM';
-export const TOGGLE_MENU = 'TOGGLE_MENU';
-
-export const resetForm = () => {
-
-    return { type: RESET_REGISTER_FORM, }
-}
 
 export const resetFormStatus = () => {
 
@@ -368,140 +286,6 @@ export const resetFormStatus = () => {
         type: RESET_REGISTER_FORM_STATUS,
     }
 }
-
-export const attemptRegisterUser = (formData) => {
-
-    return (dispatch) => {
-
-        dispatch(registerUserBegin());
-        return async.request({
-            url: 'index.php?ctrl=public&actn=registerUser',
-            data: formData
-        })
-        .then(
-            (response) => {
-                response = JSON.parse(response);
-                dispatch(registerUserEnd(response));
-            }
-        )
-        .catch(
-            (error) => {
-                dispatch(registerUserError(error));
-            }
-        );
-    };
-};
-
-export const registerUserBegin = () => {
-
-    return {
-        type: REGISTER_USER_BEGIN,
-    }
-}
-
-export const registerUserEnd = (response) => {
-
-    return {
-        type: REGISTER_USER_END,
-        payload: { response: response }
-    };
-};
-
-export const registerUserError = (error) => {
-
-    return {
-        type: REGISTER_USER_ERROR,
-        payload: {
-            error: error,
-        }
-    };
-};
-
-
-/**
- * Actions for /register
- *
- */
-export const VALIDATE_FORM_FIELD_BEGIN = 'VALIATE_FORM_FIELD_BEGIN';
-export const VALIDATE_FORM_FIELD_END = 'VALIATE_FORM_FIELD_END';
-export const VALIDATE_FORM_FIELD_ERROR = 'VALIATE_FORM_FIELD_ERROR';
-export const RESET_REGISTER_NAME = 'RESET_REGISTER_NAME';
-
-/**
- * string options.fieldType
- * Can be one of:
- *  emailAddress
- *  username
- *  password
- *  passwordMatch
- *  name
- *
- * string options.fieldId   
- * The ID of the field to validate.
- *
- * Event options.e
- * The oject representing the Event.
- *
- */
-export const attemptValidateFormField = (options) => {
-
-    return (dispatch) => {
-
-        dispatch(validateFormFieldBegin(options));
-        return validator.checkField(
-            options
-        )
-        .then(
-            (response) => {
-                response = JSON.parse(response);
-                dispatch(validateFormFieldEnd(response));
-            }
-        )
-        .catch(
-            (error) => {
-                dispatch(validateFormFieldError(error));
-            }
-        );
-    };
-};
-
-export const validateFormFieldBegin = (options) => {
-
-    return {
-
-        type: VALIDATE_FORM_FIELD_BEGIN,
-        payload: {
-
-            fieldType: options.fieldType,
-            fieldId: options.fieldId,
-            matchFieldId: options.matchFieldId,
-            e: options.e
-        }
-    };
-};
-
-export const validateFormFieldEnd = (serverResponse) => {
-
-    return {
-
-        type: VALIDATE_FORM_FIELD_END,
-        payload: {
-            serverResponse: serverResponse,
-        }
-    };
-};
-
-export const validateFormFieldError = (error) => {
-
-    return {
-
-        type: VALIDATE_FORM_FIELD_ERROR,
-        payload: {
-            error: error
-        }
-        
-    };
-};
 
 export const resetRegisterName = (options) => {
 
@@ -513,89 +297,4 @@ export const resetRegisterName = (options) => {
         }
     }
 };
-
-/**
- * Action for the app header/navigation
- *
- */
-export const LOGIN_REQUEST_BEGIN = 'LOGIN_REQUEST_BEGIN';
-export const LOGIN_REQUEST_END = 'LOGIN_REQUEST_END';
-export const LOGIN_REQUEST_ERROR = 'LOGIN_REQUEST_ERROR';
-export const RESET_LOGIN_MESSAGE = 'RESET_LOGIN_MESSAGE';
-
-export const attemptLoginRequest = (history) => {
-
-    return (dispatch) => {
-
-        dispatch(loginRequestBegin());
-        return auth.login()
-            .then(
-                (response) => { 
-                    response = JSON.parse(response);
-                    dispatch(loginRequestEnd(response));
-                    if (response.success === true) {
-                        history.push('/');
-                        dispatch(toggleMenu());
-                        dispatch(tryLoadUserAndAppData());
-                    }
-                }
-            )
-            .catch(
-                (error) => { dispatch(loginRequestError(error)); }
-            );
-    };
-}
-
-export const loginRequestBegin = () => {
-
-    return {
-
-        type: LOGIN_REQUEST_BEGIN
-    };
-};
-
-/**
- * Even though the login REQUEST has ended successfully, the user may still not
- * be logged in.
- */
-export const loginRequestEnd = (serverResponse) => {
-
-    return {
-
-        type: LOGIN_REQUEST_END,
-        payload: { 
-            serverResponse: serverResponse
-        }
-    };
-};
-
-/**
- * This error occurs when the server returns (e.g.) a 500 error. This error
- * does NOT occur when the server denies the login due to invalid credentials,
- * for example.
- */
-export const loginRequestError = (error) => {
-
-    return {
-
-        type: LOGIN_REQUEST_ERROR,
-        payload: { error: error }
-    };
-};
-
-export const resetLoginMessage = () => {
-
-    return {
-
-        type: RESET_LOGIN_MESSAGE
-    };
-};
-
-export const toggleMenu = () => {
-
-    return {
-
-        type: TOGGLE_MENU,
-    };
-}
 

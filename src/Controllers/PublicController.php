@@ -1,6 +1,6 @@
 <?php
 
-namespace JackBradford\Plantlogg;
+namespace JackBradford\EasyCoffeeAtHome;
 use JackBradford\Disphatch\Controllers\Controller;
 use JackBradford\Disphatch\Controllers\IRequestController;
 use JackBradford\Disphatch\Controllers\ControllerResponse;
@@ -345,10 +345,12 @@ class PublicController extends Controller implements IRequestController {
     public function getUserAndAppData() {
 
         $success = true;
+        $isLoggedIn = false;
         $message = '';
         $user = $this->userMgr->getCurrentUser();
         $varieties = [];
         $individuals = [];
+        $userDetails = [];
         $units = [];
 
         try {
@@ -356,11 +358,22 @@ class PublicController extends Controller implements IRequestController {
             if (empty($user)) {
 
                 $message .= "No user logged in. ";
+                $userDetails = (object)[
+                    'email' => null,
+                    'firstName' => null,
+                    'lastName' => null,
+                    'lastLogin' => null,
+                    'id' => null,
+                    'username' => null,
+                ];
             }
             else {
 
+                $isLoggedIn = true;
                 $varieties = $this->getVarieties($user);
                 $individuals = [];
+                $userDetails = $user->getDetails();
+                $userDetails->username = $this->getUsername($userDetails->id);
             }
             $units = $this->getUnits($user);
             if (empty($units)) error_log("NO UNITS");
@@ -371,22 +384,24 @@ class PublicController extends Controller implements IRequestController {
             $success = false;
         }
         return new ControllerResponse($success, $message, (object)[
+            "userIsLoggedIn" => $isLoggedIn,
             "individuals" => [],
             "message" => $message,
             "units" => $units,
+            "user" => $userDetails,
             "varieties" => $varieties,
         ]);
     }
 
     /**
-     * @method PublicController::getPlants()
+     * @method PublicController::getVarieties()
      * Get the varieties and individuals associated with a user.
      *
      * @return ControllerResponse
      */
     protected function getVarieties(DisphatchUser $user) {
 
-        return Variety::where('user_id', '=', $user->getDetails()->id)->get();
+        return Taxa::where('user_id', '=', $user->getDetails()->id)->get();
     }
 
     protected function getUnits() {
@@ -453,32 +468,72 @@ class PublicController extends Controller implements IRequestController {
     }
 
     /**
-     * @method PublicController::validateField()
-     * Validate a form field entry.
+     * @method PublicController::stageImageForUpload
+     * Upload an image to a temporary folder on the server.
+     *
+     * @return ControllerResponse
+     */
+    public function stageImageForUpload() {
+
+        $success = false;
+        $user = $this->userMgr->getCurrentUser();
+
+        $testImageArray = function($ctrlr) {
+
+            $testFile = '/var/www/vhosts/plantlo.gg.dev/array-test.txt';
+            $ctrlr->testArray($_FILES['image'], $testFile, '$_FILES[image] test.');
+        };
+
+        try {
+
+            if (empty($user)) {
+
+                throw new \Exception('Not Logged In.');
+            }
+            if (empty($_FILES['image'])) {
+
+                throw new \Exception('No image to upload.');
+            }
+            if ($this->inDevMode()) $testImageArray($this);
+            $imageHandler = new ImageHandler($this->config);
+            $imageData = $imageHandler->stage(
+                ['image' => $_FILES['image']],
+                $user->getDetails()->id
+            );
+            $success = true;
+            $data = (object)[
+                'image_data' => $imageData,
+            ];
+
+        } catch (\Exception $e) {
+
+            $data = (object)['message' => $e->getMessage()];
+        }
+
+        $cliMsg = '';
+        return new ControllerResponse($success, $cliMsg, $data);
+    }
+
+    /**
+     * @method PublicController::validateInput()
+     * Validate a user input.
      *
      * @param string $_POST['data']
      * A JSON-encoded object containing the following keys:
-     * `fieldType`  The field to validate. Supported fields are found under
-     *              the `$validators` array. To add a new field, create a new
-     *              private method and add its name to the array.
+     * `validator`  The validator with which to check the input.
      * `userInput`  The user's input.
      *
      * @return ControllerResponse
      */
-    public function validateField() {
-
-        $validators = [
-            'emailAddress' => 'checkEmailAddress',
-            'username' => 'checkUsername',
-        ];
+    public function validateInput() {
 
         $data = json_decode($this->fromPOST('data'));
-        $validator = $validators[$data->fieldType];
-        $result = $this->{ $validator }($data->userInput);
+        $validator = new Validator($this->userMgr, $this->db);
+        $result = $validator->validate($data->validator, $data->userInput);
         return new ControllerResponse(
             $result->success,
             $result->message,
-            $result
+            $result->data,
         );
     }
 
@@ -571,53 +626,6 @@ class PublicController extends Controller implements IRequestController {
         else error_log('Send activation email here.');
     }
 
-    private function checkEmailAddress(string $address) {
-
-        $success = false;
-        $message = "Email is already registered.";
-
-        try {
-
-            $this->userMgr->getUser($address);
-        }
-        catch (\Exception $e) {
-
-            $success = true;
-            $message = "";
-            if (!preg_match('/.+@{1,}.+/', $address)) {
-
-                $success = false;
-                $message = "Invalid email.";
-            }
-        }
-        return (object) [
-            'success' => $success,
-            'message' => $message,
-            'fieldType' => 'emailAddress'
-        ];
-    }
-
-    private function checkUsername(string $username) {
-
-        $success = true;
-        $message = "Username is available.";
-        try {
-
-            $username = $this->validateUsername($username);
-        }
-        catch (\Exception $e) {
-
-            error_log($e->getMessage());
-            $success = false;
-            $message = $e->getMessage();
-        }
-        return (object) [
-            'success' => $success,
-            'message' => $message,
-            'fieldType' => 'username'
-        ];
-    }
-
     private function getUsername($userId) {
 
         $results = $this->db->getConnection('default')->select(
@@ -641,36 +649,28 @@ class PublicController extends Controller implements IRequestController {
         return $data;
     }
 
-    private function validateUsername(string $username) {
+    /**
+     * @method PublicController::testArray
+     * Print the contents of an array to a file for debugging purposes.
+     *
+     * @param array $array
+     * The array to test.
+     *
+     * @param str $file
+     * The full path of the test file.
+     *
+     * @param str $desc
+     * A description to be appended to the test file.
+     *
+     * @return void
+     */
+    private function testArray($array, $file, $desc) {
 
-        $username = mb_strtolower($username);
-        if (!preg_match('/.+/', $username)) {
+        if ($this->inDevMode()) {
 
-            throw new \Exception('Username cannot be empty.');
+            file_put_contents($file, print_r($array, true));
+            file_put_contents($file, $desc, FILE_APPEND);
         }
-        if (preg_match('/(\W)/', $username)) {
-
-            throw new \Exception('Username may only contain letters and numbers.');
-        }
-        if (mb_strlen($username) > 36) {
-
-            throw new \Exception('Username may not exceed 36 characters.');
-        }
-        try {
-                $results = $this->db->getConnection('default')->select(
-                'select * from usernames where username = ?',
-                [$username]
-            );
-        }
-        catch (\Exception $e) {
-
-            error_log($e->getMessage());
-            throw new \Exception("Internal server error.");
-        }
-        if ($results) {
-            throw new \Exception('Username is taken.');
-        }
-        return $username;
     }
 }
 

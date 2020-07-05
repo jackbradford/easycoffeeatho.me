@@ -16,7 +16,7 @@ export default function activate(
         activationCode: null,
         error: null,
         internalMessage: '',
-        isActivating: false,
+        isActivating: true,
         serverMessage: '',
         success: null,
         userId: null,

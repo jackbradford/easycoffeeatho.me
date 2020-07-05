@@ -8,6 +8,7 @@ import LoginError from './login-error';
 import { mediator }  from '../mediator';
 import { auth } from '../auth';
 import { withRouter } from 'react-router';
+import { mainMenuNavItems } from '../config/main-nav-menu-items
 import {
     BrowserRouter as Router,
     Switch,
@@ -19,68 +20,22 @@ class Header extends Component {
 
     attemptLogin(e) {
 
-        this.props.attemptLogin(this.props.history);
+        var currentPath = window.location.pathname;
+        var un = document.getElementById('login-email').value;
+        var pw = document.getElementById('login-password').value;
+        this.props.attemptLogin(un, pw, this.props.history, currentPath);
     }
 
     componentDidMount() {
 
         this.props.resetLoginMessage();
+        this.props.resetMenuExpand();
     }
 
-    getAccountSection() {
+    constructor() {
 
-        var user = this.props.user;
-        var html = '';
-        if (user.details.isLoggedIn === true) {
-
-            html = (
-                <div className="menu-user-account">
-
-                </div>
-            );
-        }
-        return html;
-    }
-
-    getUserMenuItems() {
-
-        var user = this.props.user;
-        var html = '';
-        if (user.details.isLoggedIn === true) {
-
-            html = (
-                <React.Fragment>
-                    <li>
-                        <Link
-                            to="/plants"
-                            className="menu-link plants"
-                        >
-                            <span></span>
-                            <span>Plants</span>
-                        </Link>
-                    </li>
-                    <li>
-                        <Link
-                            to="/gallery"
-                            className="menu-link gallery"
-                        >
-                            <span></span>
-                            <span>Gallery</span>
-                        </Link>
-                    </li>
-                    <li>
-                        <Link
-                            to="/account"
-                            className="menu-link account"
-                        >
-                            <span></span>
-                            <span>Account</span>
-                        </Link>
-                    </li>
-                </React.Fragment>
-            );
-        }
-        return html;
+        super();
+        this.attemptLogin = this.attemptLogin.bind(this);
     }
 
     goToHomepage() {
@@ -90,7 +45,7 @@ class Header extends Component {
 
     handleKeyPress(e) {
 
-        if (e.key === 'Enter') this.props.attemptLogin(this.props.history);
+        if (e.key === 'Enter') this.attemptLogin();
     }
 
     toggleMenu() {
@@ -108,8 +63,6 @@ class Header extends Component {
     render() {
 
         var navClass = this.toggleMenu.bind(this)();
-        var userMenuItems = this.getUserMenuItems.bind(this)();
-        var accountSection = this.getAccountSection.bind(this)();
         return (
 
             <React.Fragment>
@@ -129,26 +82,7 @@ class Header extends Component {
                     </button>
                 </div>
                 <nav id="main-menu" className={navClass}>
-                    <div className="login">
-                        <input
-                            type="text"
-                            id="login-email"
-                            placeholder="your email"
-                        />
-                        <input
-                            type="password"
-                            id="login-password"
-                            placeholder="password"
-                            onKeyPress={this.handleKeyPress.bind(this)}
-                        />
-                        <input
-                            className="primary-button button"
-                            type="submit"
-                            value="Log in"
-                            onClick={this.attemptLogin.bind(this)}
-                        />
-                    </div>
-                    <LoginError errorMessage={this.props.loginMessage} />
+                    <LoginBarContainer />
                     <div className="register">
                         <h2>Not a member?</h2>
                         <Link to="/register"
@@ -158,35 +92,18 @@ class Header extends Component {
                         </Link>
                     </div>
                     <ul className="menu-items">
-                        <li>
-                            <Link
-                                to="/"
-                                className="menu-link home"
-                            >
-                                <span></span>
-                                <span>home</span>
-                            </Link>
-                        </li>
-                        {userMenuItems}
-                        <li>
-                            <Link
-                                to="/about"
-                                className="menu-link about"
-                            >
-                                <span></span>
-                                <span>about</span>
-                            </Link>
-                        </li>
-                        <li>
-                            <Link
-                                to="/help"
-                                className="menu-link help"
-                            >
-                                <span></span>
-                                <span>help</span>
-                            </Link>
-                        </li>
+                        {mainMenuNavItems.map((item, index) => {
+                            return (
+                                <li key={index}>
+                                    <Link to={ item.link } className={ item.className }>
+                                        <span></span>
+                                        <span>{ item.itemText }</span>
+                                    </Link>
+                                </li>
+                            );
+                        })}
                     </ul>
+                    <UserAccountNav />
                 </nav>
             </header>
             </React.Fragment>

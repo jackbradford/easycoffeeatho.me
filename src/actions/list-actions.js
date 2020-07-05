@@ -1,21 +1,54 @@
 /**
- * Actions for the List components.
+ * @file list-actions.js
+ * Actions for the List component.
  *
  */
-export const FILTER_LIST = "FILTER_LIST";
+import { getCriterion } from '../lib/js/filter-criteria';
+
+export const APPLY_LIST_FILTER = "APPLY_LIST_FILTER";
+export const REMOVE_LIST_FILTER = "REMOVE_LIST_FILTER";
 export const SORT_LIST = "SORT_LIST";
 export const CHANGE_LIST_LAYOUT = "CHANGE_LIST_LAYOUT";
 
-export const filterList = (listLabel, filter) => {
+/**
+ * @function applyListFilter
+ * This function creates an action that represents the application of a
+ * filter to a list.
+ *
+ * @param listType string
+ * The constant that defines the list.
+ *
+ * @param filter string
+ * The contant that defines the filter.
+ *
+ * @param value
+ * The value to serve as the filter match.
+ *
+ */
+export const applyListFilter = (listType, filter, value) => {
 
+    var criterion = getCriterion(listType, filter, value);
     return {
-        type: FILTER_LIST,
+        type: APPLY_LIST_FILTER,
         payload: {
-            listLabel: listLabel,
+            listType: listType,
             filter: filter,
+            criterion: criterion,
         }
     }
 };
+
+export const removeListFilter = (listType, filter, value) => {
+
+    var criterion = getCriterion(listType, filter, value);
+    return {
+        type: REMOVE_LIST_FILTER,
+        payload: {
+            listType: listType,
+            filter: filter,
+            criterion: criterion,
+        }
+}
 
 export const sortList = (listLabel, sort) => {
 
@@ -28,10 +61,10 @@ export const sortList = (listLabel, sort) => {
     }
 };
 
-export const changeListLayout = (listLabel, layout) => {
+export const setListLayout = (listLabel, layout) => {
 
     return {
-        type: CHANGE_LIST_LAYOUT,
+        type: SET_LIST_LAYOUT,
         payload: {
             listLabel: listLabel,
             layout: layout,

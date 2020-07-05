@@ -23,9 +23,9 @@ const mapDispatchToProps = function(dispatch) {
 
     return {
 
-        checkUserIsLoggedIn: () => {
-            dispatch(checkUserIsLoggedIn())
-        },
+//        checkUserIsLoggedIn: () => {
+//            dispatch(checkUserIsLoggedIn())
+//        },
         loadUserAndAppData: () => {
             dispatch(tryLoadUserAndAppData());
         },

@@ -1,34 +1,24 @@
 /**
- * This page allows users to register an account on PlantLogg.
+ * @file register.js
+ * This page allows users to register an account.
  *
  */
 import React, { Component } from 'react';
-import { mediator }  from '../../mediator';
-import { auth } from '../../auth';
-import HeaderContainer from '../../container/header-container';
-import ValidationStatusIcon from '../validation-status-icon';
 import ValidationMessage from '../validation-message';
-import ModalBox from '../modal-box';
+import SubmitButton from '../interface/submit-button';
+import FormSubmissionResult from '../interface/form-submission-result';
 import ReactDOM from "react-dom";
-import { TailSpin } from "svg-loaders-react"
-import {
-    BrowserRouter as Router,
-    Switch,
-    Route,
-    Link
-} from "react-router-dom";
-
+import { Link } from "react-router-dom";
+import { USER_REGISTER_FORM } from "../../forms";
+import { userRegisterFormFields } from "../../config/user-registration-form-fields";
+import { PASSWORD_MATCH_INPUT } from "../../config/user-input-types";
 
 export default class Register extends Component {
 
     constructor() {
         super();
-        this.validateEmail = this.validateEmail.bind(this);
-        this.validateUsername = this.validateUsername.bind(this);
-        this.validatePassword = this.validatePassword.bind(this);
-        this.validatePasswordMatch = this.validatePasswordMatch.bind(this);
-        this.validateName = this.validateName.bind(this);
         this.attemptRegisterUser = this.attemptRegisterUser.bind(this);
+        this.getInputs = this.getInputs.bind(this);
     }
 
     componentDidMount() {
@@ -37,118 +27,10 @@ export default class Register extends Component {
         this.props.resetForm();
     }
 
-    validateEmail(e) {
-
-        this.props.validate.emailAddress(e);
-    }
-
-    validateUsername(e) {
-
-        this.props.validate.username(e);
-    }
-
-    /**
-     * Passwords must be at least 8 characters and include at least one of 
-     * each of the following:
-     *  lowercase letter
-     *  uppercase letter
-     *  number
-     *  special character
-     *
-     */
-    validatePassword(e) {
-
-        var password = e.target.value;
-        try {
-            if (!password.match(/.{12,}/)) {
-                throw new Error('Password must be at least 12 characters long.');
-            }
-            this.props.validate.password({
-                success: true,
-                data: {
-                    success: true,
-                    message: 'Password is valid.',
-                    fieldType: 'password'
-                }
-            });
-        }
-        catch (error) {
-
-            this.props.validate.password({
-                success:true,
-                data: {
-                    success: false,
-                    message: error.message,
-                    fieldType: 'password'
-                }
-            });
-        }
-    }
-
-    validatePasswordMatch(e) {
-
-        var retype = e.target.value;
-        var password = document.getElementById('register-password').value;
-        try {
-            if (retype !== password) {
-                throw new Error('Passwords do not match.');
-            }
-            this.props.validate.passwordMatch({
-                success: true,
-                data: {
-                    success: true,
-                    message: 'Passwords match.',
-                    fieldType: 'passwordMatch'
-                }
-            });
-        }
-        catch (error) {
-            this.props.validate.passwordMatch({
-                success: true,
-                data: {
-                    success: false,
-                    message: error.message,
-                    fieldType: 'passwordMatch'
-                }
-            });
-        }
-    }
-
-    validateName(e) {
-
-        var nameInput = e.target;
-        var name = nameInput.value;
-        var id = nameInput.id;
-        var fieldType = (id == 'register-last-name')
-            ? 'lastName'
-            : 'firstName';
-        try {
-            if (!name.match(/.{1,}/)) {
-                this.props.resetName({
-                    fieldType: fieldType
-                });
-                return;
-            }
-            this.props.validate.name({
-                success: true,
-                data: {
-                    success: true,
-                    message: '',
-                    fieldType: fieldType,
-                }
-            });
-        }
-        catch (error) {
-
-        }
-        
-    }
-
     attemptRegisterUser() {
 
         try {
-
-            if (!this.props.email.isValid) {
+            if (!this.props.emailAddress.isValid) {
                 throw new Error('Email is invalid.');
             }
             if (!this.props.username.isValid) {
@@ -182,72 +64,33 @@ export default class Register extends Component {
         });
     }
 
+    getInputs() {
+
+        var inputs = [];
+        for (const field in userRegisterFormFields) {
+
+            var options = (field.type == PASSWORD_MATCH_INPUT)
+                ? { matchInputId: field.matchInputId }
+                : {}
+            inputs.push((
+                <TextInputContainer
+                    type={ field.type }
+                    form={ USER_REGISTER_FORM }
+                    field={ field }
+                    placeholder={ field.placeholder }
+                    onFocus={ field.onFocus }
+                    validator={ field.validator }
+                    id={ field.id }
+                    isValid={ this.props[field].isValid }
+                    validationMessage={ this.props[field].message }
+                    options={ options }
+                />
+            ));
+        }
+        return inputs;
+    }
+
     render() {
-
-        var formMessage;
-        var submitButton;
-        var submitModal;
-        if (this.props.formStatus.hasErrors) {
-            formMessage = (
-                <ValidationMessage
-                    isValid={ !this.props.formStatus.hasErrors }
-                    message={ this.props.formStatus.message }
-                    className="submit-validation"
-                />
-            );
-        }
-        if (this.props.formStatus.isBeingSubmitted === true) {
-
-            submitButton = (
-                <div
-                    className="primary-button button submit"
-                >
-                    <span><TailSpin /></span>
-                </div>
-            );
-        }
-        else {
-
-            submitButton = (
-                <div
-                    className="primary-button button submit"
-                    onClick={ this.attemptRegisterUser }
-                >
-                    <span>Register</span>
-                </div>
-            );
-        }
-
-        if (this.props.formStatus.submittedSuccessfully === true) {
-
-            var msg = "You're almost done! We've sent an activation link to the email address you provided.";
-            var redir = "/login";
-            var title = "Success!";
-            submitModal = (
-                <ModalBox
-                    type="success"
-                    title={title}
-                    message={msg}
-                    redirect={redir}
-                    history={this.props.history}
-                    id="register-success-modal"
-                />
-            );
-        }
-        if (this.props.formStatus.submittedSuccessfully === false) {
-
-            var msg = "Something went wrong! Please try again later.";
-            var title = "Error";
-            submitModal = (
-                <ModalBox
-                    type="error"
-                    title={title}
-                    message={msg}
-                    id="register-error-modal"
-                    reset={this.props.resetFormStatus}
-                />
-            );
-        }
 
         return (
             <React.Fragment>
@@ -255,159 +98,25 @@ export default class Register extends Component {
             <main className="registration-form">
                 <h1>Create an Account</h1>
                 <div className="registration-inputs">
-                    <input 
-                        type="text"
-                        placeholder="your email"
-                        onFocus={ this.props.resetFormStatus }
-                        onBlur={ this.validateEmail }
-                        id="register-email-address"
-                        className={ 
-                            (this.props.email.isValid !== false)
-                                ? "validated-input"
-                                : "validated-input invalid"
-                        }
-                    />
-                    <div
-                        className={
-                            (this.props.email.isValid !== false)
-                                ? "input-validation validated-input"
-                                : "input-validation validated-input invalid"
-                        }
-                    >
-                        <ValidationStatusIcon isValid={ this.props.email.isValid } />
-                    </div>
+                    { this.getInputs(); }
                     <ValidationMessage
-                        isValid={ this.props.email.isValid }
-                        message={ this.props.email.message }
+                        isValid={ !this.props.formStatus.hasErrors }
+                        message={ this.props.formStatus.message }
+                        className="submit-validation"
                     />
-                    <input
-                        type="text"
-                        placeholder="a new username"
-                        onFocus={ this.props.resetFormStatus }
-                        onBlur={ this.props.validate.username }
-                        id="register-username"
-                        className={
-                            (this.props.username.isValid !== false)
-                                ? "validated-input"
-                                : "validated-input invalid"
-                        }
+                    <SubmitButton 
+                        className="primary-button button submit"
+                        submitFunction={ this.attemptRegisterUser }
+                        isBeingSubmitted={ this.props.formStatus.isBeingSubmitted }
+                        buttonText="Register"
                     />
-                    <div
-                        className={
-                            (this.props.username.isValid !== false)
-                                ? "input-validation validated-input"
-                                : "input-validation validated-input invalid"
-                        }
-                    >
-                        <ValidationStatusIcon isValid={ this.props.username.isValid } />
-                    </div>
-                    <ValidationMessage
-                        isValid={ this.props.username.isValid }
-                        message={ this.props.username.message }
+                    <FormSubmissionResult
+                        form={ USER_REGISTER_FORM }
+                        title="Success!"
+                        message="You're almost done! We've sent an activation link to the email address you provided."
+                        redirect="/login"
+                        formStatusResetFunction={ this.props.resetForm }
                     />
-                    <input
-                        type="password"
-                        placeholder="a new password"
-                        onFocus={ this.props.resetFormStatus }
-                        onBlur={ this.validatePassword }
-                        id="register-password"
-                        className={
-                            (this.props.password.isValid !== false)
-                                ? "validated-input"
-                                : "validated-input invalid"
-                        }
-                    />
-                    <div
-                        className={
-                            (this.props.password.isValid !== false)
-                                ? "input-validation validated-input"
-                                : "input-validation validated-input invalid"
-                        }
-                    >
-                        <ValidationStatusIcon isValid={ this.props.password.isValid } />
-                    </div>
-                    <ValidationMessage
-                        isValid={ this.props.password.isValid }
-                        message={ this.props.password.message }
-                    />
-                    <input
-                        type="password"
-                        placeholder="please retype your password"
-                        onFocus={ this.props.resetFormStatus }
-                        onBlur={ this.validatePasswordMatch }
-                        id="register-password-match"
-                        className={
-                            (this.props.passwordMatch.isValid !== false)
-                                ? "validated-input"
-                                : "validated-input invalid"
-                        }
-                    />
-                    <div
-                        className={
-                            (this.props.passwordMatch.isValid !== false)
-                                ? "input-validation validated-input"
-                                : "input-validation validated-input invalid"
-                        }
-                    >
-                        <ValidationStatusIcon isValid={ this.props.passwordMatch.isValid } />
-                    </div>
-                    <ValidationMessage
-                        isValid={ this.props.passwordMatch.isValid }
-                        message={ this.props.passwordMatch.message }
-                    />
-                    <input
-                        type="text"
-                        placeholder="first name (optional)"
-                        onFocus={ this.props.resetFormStatus }
-                        onBlur={ this.validateName }
-                        id="register-first-name"
-                        className={
-                            (this.props.firstName.isValid !== false)
-                                ? "validated-input"
-                                : "validated-input invalid"
-                        }
-                    />
-                    <div
-                        className={
-                            (this.props.firstName.isValid !== false)
-                                ? "input-validation validated-input"
-                                : "input-validation validated-input invalid"
-                        }
-                    >
-                        <ValidationStatusIcon isValid={ this.props.firstName.isValid } />
-                    </div>
-                    <ValidationMessage
-                        isValid={ this.props.firstName.isValid }
-                        message={ this.props.firstName.message }
-                    />
-                    <input
-                        type="text"
-                        placeholder="last name (optional)"
-                        onFocus={ this.props.resetFormStatus }
-                        onBlur={ this.validateName }
-                        id="register-last-name"
-                        className={
-                            (this.props.lastName.isValid !== false)
-                                ? "validated-input"
-                                : "validated-input invalid"
-                        }
-                    />
-                    <div
-                        className={
-                            (this.props.lastName.isValid !== false)
-                                ? "input-validation validated-input"
-                                : "input-validation validated-input invalid"
-                        }
-                    >
-                        <ValidationStatusIcon isValid={ this.props.lastName.isValid } />
-                    </div>
-                    <ValidationMessage
-                        isValid={ this.props.lastName.isValid }
-                        message={ this.props.lastName.message }
-                    />
-                    { formMessage }
-                    { submitButton }
-                    { submitModal }
                 </div>
             </main>
             </React.Fragment>

@@ -1,3 +1,7 @@
+/**
+ * @file app-data-reducer
+ *
+ */
 import { combineReducers } from 'redux';
 import { auth } from '../auth';
 import {

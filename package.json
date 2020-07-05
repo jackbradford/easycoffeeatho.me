@@ -1,7 +1,7 @@
 {
-  "name": "plantlo.gg",
+  "name": "easycoffeeathome",
   "version": "1.0.0",
-  "description": "Keep your plants alive. Track their progress. Remember the small details.",
+  "description": "A store for people who know that the best coffee is made at home.",
   "main": "htdocs/js/index.js",
   "dependencies": {
     "minimist": ">=1.2.2",

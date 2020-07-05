@@ -1,9 +1,33 @@
 /**
- * This page allows users to register an account on PlantLogg.
+ * @file modal-box
+ * This file renders a modal box.
+ *
+ * A modal box displays a message and offers an `okay` button. An action
+ * can be assigned to the button with the `redirect` OR `clickFunction` props.
+ * If `redirect` is given, it will take priority over the `clickFunction`.
+ * If neither are given, the `Okay` button will dismiss the box.
+ *
+ * To offer the user a choice between two or more options, use the UserDialog
+ * component.
+ *
+ * Props:
+ * ---------------
+ * id
+ * type ('success', 'error', 'info')
+ * redirect (string) A URL. The user will be redirected after dismissing
+ *      the dialog.
+ * clickFunction (function) An action to perform when the user
+ *      dismisses the dialog.
+ * className (string)
+ * title (string)
+ * message (string)
+ * buttonText (string)
+ *
  *
  */
 import React, { Component } from 'react';
 import ReactDOM from "react-dom";
+import { withRouter } from 'react-router';
 import { Redirect } from 'react-router-dom';
 import {
     BrowserRouter as Router,
@@ -13,7 +37,14 @@ import {
 } from "react-router-dom";
 
 
-export default class ModalBox extends Component {
+class ModalBox extends Component {
+
+    constructor() {
+
+        this.closeModal = this.closeModal.bind(this);
+        this.getOkayButton = this.getOkayButton.bind(this);
+        this.redirect = this.redirect.bind(this);
+    }
 
     componentDidMount() {
 
@@ -31,6 +62,26 @@ export default class ModalBox extends Component {
 
         var element = document.getElementById(this.props.id);
         element.style.left = '100%';
+    }
+
+    getOkayButton(okayClass, okayId) {
+    
+        var okay, clickFunction;
+        var buttonText = (this.props.buttonText != undefined)
+            ? this.props.buttonText
+            : 'Okay';
+        if (this.props.redirect != undefined) clickFunction = this.redirect;
+        else if (this.props.clickFunction != undefined) clickFunction = this.props.clickFunction;
+        else clickFunction = this.closeModal;
+        return (
+            <div
+                className={ okayClass }
+                onClick={ clickFunction }
+                id={ okayId }
+            >
+            { buttonText }
+            </div>
+        );
     }
 
     render() {
@@ -51,8 +102,14 @@ export default class ModalBox extends Component {
             alt = "An orange warning sign.";
             okayClass = "button error-button";
         }
+        if (this.props.type == 'info') {
+            classes += "info-modal";
+            src = "/img/info.svg";
+            alt = "Information.";
+            okayClass = "button primary-button";
+        }
 
-        okay = this.renderOkayButton(okayClass, okayId);
+        okay = this.getOkayButton(okayClass, okayId);
 
         return (
             <React.Fragment>
@@ -68,48 +125,7 @@ export default class ModalBox extends Component {
             </React.Fragment>
         );
     }
-
-    renderOkayButton(okayClass, okayId) {
-    
-        var okay;
-
-        if (this.props.redirect != undefined) {
-
-            okay = (
-                <div
-                    className={okayClass}
-                    onClick={this.redirect.bind(this)}
-                    id={okayId}
-                >
-                    Okay
-                </div>
-            );
-        }
-        else if (this.props.reset != undefined) {
-
-            okay = (
-                <div
-                    className={okayClass}
-                    onClick={this.props.reset}
-                    id={okayId}
-                >
-                    Okay
-                </div>
-            );
-        }
-        else {
-
-            okay = (
-                <div
-                    className={okayClass}
-                    onClick={this.closeModal.bind(this)}
-                    id={okayId}
-                >
-                    Dismiss
-                </div>
-            );
-        }
-        return okay;
-    }
 }
+
+export default withRouter(ModalBox);
 

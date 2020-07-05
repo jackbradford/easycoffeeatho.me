@@ -1,10 +1,8 @@
 /**
- * This file provides Plantlogg's homepage.
+ * This file provides the homepage.
  *
  */
 import React, { Component } from 'react';
-import HeaderContainer from '../../container/header-container';
-
 
 export default class Home extends Component {
 
@@ -12,11 +10,9 @@ export default class Home extends Component {
 
         return (
             <React.Fragment>
-            <HeaderContainer />
             <main className="home">
                 <p>Homepage</p>
             </main>
-            <footer></footer>
             </React.Fragment>
         );
     }

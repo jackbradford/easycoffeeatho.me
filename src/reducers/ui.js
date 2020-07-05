@@ -13,6 +13,15 @@ const defaultList = {
         direction: null,
         field: null,
     },
+    search: {
+        keyphrase: null,
+        field: null,
+    },
+    pagination: {
+        enabled: true,
+        itemsPerPage: 25,
+    },
+    filters: [],
 };
 
 export default function ui(

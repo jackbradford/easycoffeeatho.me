@@ -48,6 +48,7 @@ export default function user(
             isLoggedIn: null,
             firstName: null,
             lastName: null,
+            lastLogin: null,
             userId: null,
             username: null
             
@@ -118,10 +119,17 @@ export default function user(
                     error: null,
                     loading: true,
                 },
+                loginCheck: {
+                    ...state.loginCheck,
+                    error: null,
+                    loading: true,
+                    message: null,
+                }
             };
 
         case LOAD_USER_AND_APP_DATA_END:
             const varieties = getVarieties(action.payload);
+            var user = action.payload.user;
             return {
                 ...state,
                 data: {
@@ -129,6 +137,20 @@ export default function user(
                     loading: false,
                     individuals: action.payload.individuals,
                     varieties: varieties,
+                },
+                details: {
+                    ...state.details,
+                    email: user.email,
+                    isLoggedIn: action.payload.userIsLoggedIn,
+                    firstName: user.firstName,
+                    lastName: user.lastName,
+                    lastLogin: user.lastLogin,
+                    userId: user.id,
+                    username: user.username,
+                },
+                loginCheck: {
+                    ...state.loginCheck,
+                    loading: false,
                 }
             };
 
@@ -139,6 +161,12 @@ export default function user(
                     ...state.data,
                     error: action.payload.error,
                     loading: false,
+                },
+                loginCheck: {
+                    ...state.loginCheck,
+                    error: action.payload.error,
+                    loading: false,
+                    message: action.payload.error.message
                 }
             };
 

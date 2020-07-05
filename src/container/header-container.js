@@ -1,4 +1,5 @@
 /**
+ * @file header-container.js
  * This file provides the container component for the header.
  *
  */
@@ -9,14 +10,16 @@ import Header from '../component/header';
 import {
     attemptLoginRequest,
     resetLoginMessage,
-    toggleMenu
-} from '../actions';
+} from '../actions/login-actions';
+import {
+    resetMenuExpand,
+    toggleMenu,
+} from '../actions/interface/header-actions';
 
 const mapStateToProps = function(state) {
 
     return {
 
-        loginMessage: state.user.loginRequest.message,
         menuExpand: state.header.menuExpand,
         user: state.user,
     }
@@ -26,13 +29,9 @@ const mapDispatchToProps = function(dispatch) {
 
     return {
 
-        attemptLogin: (history) => {
+        resetMenuExpand: () => {
 
-            dispatch(attemptLoginRequest(history));
-        },
-        resetLoginMessage: () => {
-
-            dispatch(resetLoginMessage());
+            dispatch(resetMenuExpand());
         },
         toggleMenu: () => {
         

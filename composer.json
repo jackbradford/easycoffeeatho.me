@@ -1,6 +1,6 @@
 {
-    "name": "jackbradford/plantlo.gg",
-    "description": "An app for logging plant care information.",
+    "name": "jackbradford/easycoffeeathome",
+    "description": "A store for people who know that the best coffee is made at home.",
     "require": {
         "jackbradford/disphatch": "dev-master"
     },

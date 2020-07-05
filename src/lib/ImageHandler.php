@@ -1,6 +1,6 @@
 <?php
 
-namespace JackBradford\Plantlogg;
+namespace JackBradford\EasyCoffeeAtHome;
 use JackBradford\Disphatch\Config\Config;
 
 class ImageHandler {

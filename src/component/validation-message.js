@@ -14,17 +14,29 @@ import {
 
 export default class ValidationMessage extends Component {
 
+    /**
+     * @method ValidationMessage.render
+     * This method only renders the component if there's an error to
+     * report.
+     *
+     */
     render() {
 
-        var cl = '';
-        if (this.props.message) cl += "validation-message ";
-        cl += (this.props.isValid) ? "valid" : "invalid";
-        cl += (this.props.className) ? " " + this.props.className : '';
-        return (
-            <React.Fragment>
-            <div className={cl}>{ this.props.message }</div>
-            </React.Fragment>
-        );
+        var classNames = '';
+        if (this.props.message) classNames += "validation-message ";
+        classNames += (this.props.isValid) ? "valid" : "invalid";
+        classNames += (this.props.className) ? " " + this.props.className : '';
+        switch (this.props.isValid) {
+            case true:
+                return;
+
+            case false:
+                return (
+                    <React.Fragment>
+                    <div className={classNames}>{ this.props.message }</div>
+                    </React.Fragment>
+                );
+        }
     }
 }
 

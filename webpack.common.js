@@ -4,7 +4,7 @@ const { CleanWebpackPlugin } = require('clean-webpack-plugin');
 
 module.exports = {
   entry: {
-    app: './src/plantlogg.jsx',
+    app: './src/easycoffeeathome.jsx',
   },
   plugins: [
     // new CleanWebpackPlugin(['dist/*']) for < v2 versions of CleanWebpackPlugin
@@ -14,7 +14,7 @@ module.exports = {
 //    }),
   ],
   output: {
-    filename: './plantlogg.bundle.js',
+    filename: './easycoffeeathome.bundle.js',
     path: path.resolve(__dirname, 'htdocs/js'),
   },
   module: {

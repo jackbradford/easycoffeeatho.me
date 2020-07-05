@@ -5,14 +5,13 @@
  */
 import React, { Component } from 'react';
 import { connect } from 'react-redux';
-import { bindActionCreators } from 'redux';
 import Activate from '../component/pages/activate';
 import {
     attemptActivateUser,
     attemptGenerateNewActivationLink,
     resetGenerateNewActivationLink,
     resetMenuExpand,
-} from '../actions';
+} from '../actions/activate-actions';
 
 const mapStateToProps = function(state) {
 

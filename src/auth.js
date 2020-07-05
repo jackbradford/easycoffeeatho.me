@@ -16,13 +16,12 @@ var auth = (function() {
      *
      * return void
      */
-    var attemptLogin = function(dispatch) {
+    var attemptLogin = function(dispatch, username, password) {
 
         var url = '/index.php?ctrl=public&actn=auth';
         var data = encodeURIComponent(JSON.stringify({
-        
-            un: document.getElementById('login-email').value,
-            pw: document.getElementById('login-password').value,
+            un: username,
+            pw: password,
         }));
         return fetch(url, {
             method: "POST",

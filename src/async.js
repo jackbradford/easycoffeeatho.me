@@ -27,14 +27,23 @@ var async = (function() {
 
         var url = options.url;
         var data = encodeURIComponent(JSON.stringify(options.data));
-        return fetch(url, {
+        var fetchConfig;
+        if (options.payloadIsFiles === true) {
+
+            fetchConfig = {
+                method: "POST",
+                body: options.data
+            }
+        }
+        else fetchConfig = {
             method: "POST",
             headers: { 
                 'Content-Type': 'application/x-www-form-urlencoded'
             },
             body: "data=" + data + "&async=1"
+        };
 
-        })
+        return fetch(url, fetchConfig)
             .then(handleErrors)
             .then( (response) => { 
             

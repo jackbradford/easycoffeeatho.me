@@ -2,6 +2,9 @@ import { combineReducers } from 'redux';
 import { auth } from '../auth';
 import {
     NEW_INDIVIDUAL_UPDATE_REQUIRED_FIELDS,
+    STAGE_IMAGE_BEGIN,
+    STAGE_IMAGE_END,
+    STAGE_IMAGE_ERROR,
     SUBMIT_NEW_INDIVIDUAL_BEGIN,
     SUBMIT_NEW_INDIVIDUAL_END,
     SUBMIT_NEW_INDIVIDUAL_ERROR,
@@ -52,7 +55,7 @@ export default function newIndividual(
             email: null,
         },
         fields: {
-            image: {...field, imagePath: null},
+            image: {...field, imageTempPath: null, isLoading: false},
             nickname: field,
             serial: {...field, isRequired: true},
             family: field,
@@ -104,6 +107,50 @@ export default function newIndividual(
                     }
                 }
             };
+
+        case STAGE_IMAGE_BEGIN:
+            return {
+                ...state,
+                fields: {
+                    ...state.fields,
+                    image: {
+                        ...state.fields.image,
+                        error: null,
+                        isLoading: true,
+                        isValid: null,
+                        imageTempPath: null,
+                    }
+                }
+            };
+
+        case STAGE_IMAGE_END:
+            var imagePath = action.payload.image_data[0].filename;
+            return {
+                ...state,
+                fields: {
+                    ...state.fields,
+                    image: {
+                        ...state.fields.image,
+                        isLoading: false,
+                        isValid: true,
+                        imageTempPath: '/img/tmp/' + imagePath,
+                    }
+                }
+            };
+
+        case STAGE_IMAGE_ERROR:
+            return {
+                ...state,
+                fields: {
+                    ...state.fields,
+                    image: {
+                        ...state.fields.image,
+                        isLoading: false,
+                        isValid: false,
+                        error: action.payload.error,
+                    }
+                }
+            }
 
         case SUBMIT_NEW_INDIVIDUAL_BEGIN:
             return {

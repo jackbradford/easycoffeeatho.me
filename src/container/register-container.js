@@ -1,28 +1,26 @@
 /**
- * This file provides the container component for the Register page.
- * plantlo.gg/register
+ * @file register-container.js
+ * This file provides the container for the Register page.
  *
  */
 import React, { Component } from 'react';
 import { connect } from 'react-redux';
-import { bindActionCreators } from 'redux';
 import Register from '../component/pages/register';
+import { USER_REGISTER_FORM } from '../config/forms';
 import {
     attemptRegisterUser,
-    attemptValidateFormField,
     registerUserEnd,
+} from '../actions/register-actions';
+import {
     resetForm,
-    resetFormStatus,
-    resetMenuExpand,
-    resetRegisterName,
-    validateFormFieldEnd,
-} from '../actions';
+    resetFormSubmissionStatus,
+} from '../actions/form-actions';
 
 const mapStateToProps = function(state) {
 
     return {
 
-        email: state.register.fields.emailAddress,
+        emailAddress: state.register.fields.emailAddress,
         firstName: state.register.fields.firstName,
         formStatus: state.register.form,
         lastName: state.register.fields.lastName,
@@ -43,42 +41,11 @@ const mapDispatchToProps = function(dispatch) {
             dispatch(registerUserEnd(response))
         },
         resetForm: () => {
-            dispatch(resetForm())
+            dispatch(resetForm({ form: USER_REGISTER_FORM }))
         },
-        resetFormStatus: () => {
-            dispatch(resetFormStatus())
+        resetFormSubmissionStatus: () => {
+            dispatch(resetFormSubmissionStatus({ form: USER_REGISTER_FORM }))
         },
-        resetMenuExpand: () => {
-            dispatch(resetMenuExpand())
-        },
-        resetName: (options) => {
-            dispatch(resetRegisterName(options))
-        },
-        validate: {
-            emailAddress: (e) => { 
-                dispatch(attemptValidateFormField({
-                    fieldType: 'emailAddress',
-                    fieldId: 'register-email-address',
-                    e: e,
-                }));
-            },
-            name: (options) => { 
-                dispatch(validateFormFieldEnd(options))
-            },
-            password: (options) => { 
-                dispatch(validateFormFieldEnd(options))
-            },
-            passwordMatch: (options) => { 
-                dispatch(validateFormFieldEnd(options))
-            },
-            username: (e) => {
-                dispatch(attemptValidateFormField({
-                    fieldType: 'username',
-                    fieldId: 'register-username',
-                    e: e,
-                }));
-            },
-        }
     };
 };
 
