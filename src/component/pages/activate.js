@@ -1,12 +1,13 @@
 /**
- * This file provides Plantlogg's activation page.
- * The activation links emailed to new users will refer to this page.
+ * @file pages/activate.js
+ * This file provides the activation page.
+ * The activation links emailed to new users refer to this page.
  *
  */
 import React, { Component } from 'react';
 import ModalBox from '../modal-box';
 
-export defautl class Activate extends Component {
+export default class Activate extends Component {
 
     componentDidMount() {
 
