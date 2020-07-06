@@ -26,9 +26,15 @@ export default class List extends Component {
 
     render() {
 
+        var listClass = "list " + this.props.listClass;
         return (
 
             <React.Fragment>
+            <div className={listClass}>
+            {this.props.items.map((item, index) => {
+                return this.props.getListItemContent(item, this.props.layout);
+            }, this)}
+            </div>
             </React.Fragment>
         );
     }

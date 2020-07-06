@@ -7,8 +7,18 @@ import { getCriterion } from '../lib/js/filter-criteria';
 
 export const APPLY_LIST_FILTER = "APPLY_LIST_FILTER";
 export const REMOVE_LIST_FILTER = "REMOVE_LIST_FILTER";
+export const SET_LIST_LAYOUT = "SET_LIST_LAYOUT";
 export const SORT_LIST = "SORT_LIST";
 export const CHANGE_LIST_LAYOUT = "CHANGE_LIST_LAYOUT";
+
+export const setListLayout = (listType, newLayout) => {
+
+    return {
+        type: SET_LIST_LAYOUT,
+        listType: listType,
+        newLayout: newLayout,
+    }
+}
 
 /**
  * @function applyListFilter

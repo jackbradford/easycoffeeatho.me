@@ -4,14 +4,20 @@
  *
  */
 import {
+    SET_LIST_LAYOUT,
     APPLY_LIST_FILTER,
     REMOVE_LIST_FILTER,
 } from '../actions/list-actions';
+import {
+    list-layout-grid,
+    list-layout-detailed,
+} from '../config/list-layouts';
 
 var list = {
     filters: [],
     sortOrder: NAME_ASC,
     items: {},
+    layout: list-layout-grid,
 };
 
 var filter = {
@@ -30,12 +36,22 @@ export default function list(
         BEANS_LIST: list,
         WATER_LIST: list,
         EQUIPMENT_LIST: list,
-        ARTICLE_LIST: list
+        ARTICLE_LIST: {...list, layout: list-layout-detailed},
     },
     action
 ) {
 
     switch (action.type) {
+
+        case SET_LIST_LAYOUT:
+            var p = action.payload;
+            return {
+                ...state,
+                [p.listType]: {
+                    ...state[p.listType],
+                    layout: p.newLayout,
+                },
+            };
 
         case APPLY_LIST_FILTER:
             var p = action.payload;
