@@ -48,6 +48,7 @@ const mapStateToProps = function(state) {
         listType: EQUIPMENT_LIST,
         getListItemContent: getEquipmentListItemContent,
         layout: equip.layout,
+        pagination: equip.pagination,
     }
 };
 
@@ -55,8 +56,8 @@ const mapDispatchToProps = function(dispatch) {
 
     return {
 
-        attemptLogin: (un, pw, history, redirectURL) => {
-            dispatch(attemptLoginRequest(un, pw, history, redirectURL))
+        fetch: () => {
+            dispatch(fetchAllEquipment());
         },
     };
 };

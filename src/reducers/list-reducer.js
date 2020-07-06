@@ -13,14 +13,19 @@ import {
     list-layout-detailed,
 } from '../config/list-layouts';
 
-var list = {
+const defaultList = {
     filters: [],
     sortOrder: NAME_ASC,
     items: {},
     layout: list-layout-grid,
+    pagination: {
+        itemsPerPage: 25,
+        currentPage: null,
+        totalPages: null,
+    },
 };
 
-var filter = {
+const defaultFilter = {
     type: null,
     criterion: {},
 }
@@ -33,10 +38,10 @@ function criteriaMatch(a, b) {
 export default function list(
 
     state = {
-        BEANS_LIST: list,
-        WATER_LIST: list,
-        EQUIPMENT_LIST: list,
-        ARTICLE_LIST: {...list, layout: list-layout-detailed},
+        BEANS_LIST: defaultList,
+        WATER_LIST: defaultList,
+        EQUIPMENT_LIST: defaultList,
+        ARTICLE_LIST: {...defaultList, layout: list-layout-detailed},
     },
     action
 ) {
