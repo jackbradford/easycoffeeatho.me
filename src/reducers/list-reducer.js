@@ -14,15 +14,15 @@ import {
 } from '../config/list-layouts';
 
 const defaultList = {
-    filters: [],
-    sortOrder: NAME_ASC,
     items: {},
+    filters: [],
     layout: list-layout-grid,
     pagination: {
         itemsPerPage: 25,
         currentPage: null,
         totalPages: null,
     },
+    sortOrder: NAME_ASC,
 };
 
 const defaultFilter = {

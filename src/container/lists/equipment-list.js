@@ -43,12 +43,11 @@ const mapStateToProps = function(state) {
     var equip = state.list.EQUIPMENT_LIST;
     return {
 
+        ...equip,
         items: getVisibleEquipment(equip.items, equip.filters, equip.sortOrder),
         itemClass: 'equipment-list-item',
         listType: EQUIPMENT_LIST,
         getListItemContent: getEquipmentListItemContent,
-        layout: equip.layout,
-        pagination: equip.pagination,
     }
 };
 

@@ -47,6 +47,11 @@ export default class Filter {
                     return (item.brand == criteria.brand) ? true : false;
                 });
 
+            case EQUIPMENT_CATEGORY:
+                return list.filter(function(item, index) {
+                    return item.tags.includes(criteria.categoryTag);
+                });
+
 
 
 

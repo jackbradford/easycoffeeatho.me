@@ -1,12 +1,14 @@
 /*
- * The schema for PlantLogg.
+ * The schema for EasyCoffeeAtHome.
  *
  * This schema does not include the database tables/relations neccesary for
  * the Caratlyst Sentinel library, which should be installed before this
  * schema.
  *
  */
-USE plantlogg;
+USE easycoffeeathome;
+
+-- MISC APP RESOURCES ---------------------------------------------------------
 
 -- e.g. length, weight, temperature, etc.
 CREATE TABLE unit_types (
@@ -17,6 +19,7 @@ CREATE TABLE unit_types (
     PRIMARY KEY pk_unit_types (id),
     CONSTRAINT uc_unit_type UNIQUE (unit_type)
 ) ENGINE=INNODB DEFAULT CHARACTER SET=utf8;
+
 
 -- e.g. meter, foot, degree celcius, etc.
 CREATE TABLE units (
@@ -31,6 +34,214 @@ CREATE TABLE units (
     PRIMARY KEY pk_units (id),
     FOREIGN KEY fk_units_unit_types (unit_type) REFERENCES unit_types (id)
 ) ENGINE=INNODB DEFAULT CHARACTER SET=utf8;
+
+
+
+-- INVENTORY ------------------------------------------------------------------
+
+CREATE TABLE brands (
+    id INT(10) UNSIGNED NOT NULL AUTO_INCREMENT,
+    brand VARCHAR(50) NOT NULL,
+    created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    updated_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+) ENGINE=INNODB DEFAULT CHARACTER SET=utf8;
+
+
+-- entries in this table map to the inventory tables
+CREATE TABLE store_item_types (
+    id INT(10) UNSIGNED NOT NULL AUTO_INCREMENT,
+    item_type VARCHAR(30) NOT_NULL,
+    created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    updated_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+) ENGINE=INNODB DEFAULT CHARACTER SET=utf8;
+
+
+-- This table defines the tags available to a store item.
+CREATE TABLE tags_store_item (
+    id INT(10) UNSIGNED NOT NULL AUTO_INCREMENT,
+    tag VARCHAR(30) NOT_NULL,
+    created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    updated_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+) ENGINE=INNODB DEFAULT CHARACTER SET=utf8;
+
+
+-- This is the master inventory list.
+CREATE TABLE store_inventory (
+    id INT(10) UNSIGNED NOT NULL AUTO_INCREMENT,
+    item_type INT(10) UNSIGNED NOT NULL,
+    item_name VARCHAR(200) NOT NULL,
+    brand INT (10) UNSIGNED,
+    quantity INT(10) UNSIGNED,
+    created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    updated_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+) ENGINE=INNODB DEFAULT CHARACTER SET=utf8;
+
+
+CREATE TABLE inventory_beans (
+    item_id INT(10) UNSIGNED NOT NULL,
+    roast INT(10) UNSIGNED NOT NULL,
+    process INT(10) UNSIGNED NOT NULL,
+    roast_date DATE,
+    origin INT(10) UNSIGNED,
+    created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    updated_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+) ENGINE=INNODB DEFAULT CHARACTER SET=utf8;
+
+
+CREATE TABLE inventory_water (
+    item_id INT(10) UNSIGNED NOT NULL,
+    created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    updated_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+) ENGINE=INNODB DEFAULT CHARACTER SET=utf8;
+
+
+CREATE TABLE inventory_equipment (
+    item_id INT(10) UNSIGNED NOT NULL,
+    created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    updated_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+) ENGINE=INNODB DEFAULT CHARACTER SET=utf8;
+
+
+-- TEXT columns set to UTF8 should not count on being able to store
+-- more than 16,383 characters.
+-- See: https://stackoverflow.com/a/4420204
+CREATE TABLE store_item_descriptions (
+    item_id INT(10) UNSIGNED NOT NULL,
+    description TEXT NOT NULL,
+    is_markdown BOOLEAN DEFAULT FALSE,
+    created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    updated_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+) ENGINE=INNODB DEFAULT CHARACTER SET=utf8;
+
+
+CREATE TABLE store_item_how_to (
+    item_id INT(10) UNSIGNED NOT NULL,
+    how_to TEXT NOT NULL,
+    is_markdown BOOLEAN DEFAULT FALSE,
+    created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    updated_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+) ENGINE=INNODB DEFAULT CHARACTER SET=utf8;
+
+
+CREATE TABLE store_item_short_descriptions (
+    item_id INT(10) UNSIGNED NOT NULL,
+    short_description VARCHAR(500) NOT NULL,
+    created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    updated_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+) ENGINE=INNODB DEFAULT CHARACTER SET=utf8;
+
+
+-- this table assigns tags to store items.
+CREATE TABLE store_items_tags (
+    item_id INT(10) UNSIGNED NOT NULL,
+    tag INT(10) UNSIGNED NOT NULL,
+    created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    updated_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+) ENGINE=INNODB DEFAULT CHARACTER SET=utf8;
+
+
+-- This table associates like items together. It's used to suggest similar and
+-- complimentary products.
+CREATE TABLE add_ons (
+    item_id INT(10) UNSIGNED NOT NULL,
+    add_on_item_id INT(10) UNSIGNED NOT NULL,
+    created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    updated_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+) ENGINE=INNODB DEFAULT CHARACTER SET=utf8;
+
+
+CREATE TABLE item_reviews (
+    id INT(10) UNSIGNED NOT NULL AUTO_INCREMENT,
+    item_id INT(10) UNSIGNED NOT NULL,
+    user_id INT(10) UNSIGNED,
+    review TEXT NOT NULL,
+    created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    updated_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+) ENGINE=INNODB DEFAULT CHARACTER SET=utf8;
+
+
+CREATE TABLE item_questions (
+    id INT(10) UNSIGNED NOT NULL AUTO_INCREMENT,
+    item_id INT(10) UNSIGNED NOT NULL,
+    user_id INT(10) UNSIGNED NOT NULL,
+    question VARCHAR(500) NOT NULL,
+    created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    updated_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+) ENGINE=INNODB DEFAULT CHARACTER SET=utf8;
+
+
+CREATE TABLE item_question_answers (
+    id INT(10) UNSIGNED NOT NULL AUTO_INCREMENT,
+    question_id INT(10) UNSIGNED NOT NULL,
+    answer VARCHAR(500) NOT NULL,
+    created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    updated_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+) ENGINE=INNODB DEFAULT CHARACTER SET=utf8;
+
+
+
+-- ARTICLES -------------------------------------------------------------------
+
+CREATE TABLE authors (
+    id INT(10) UNSIGNED NOT NULL AUTO_INCREMENT,
+    author VARCHAR(50) UNSIGNED NOT NULL,
+    created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    updated_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+) ENGINE=INNODB DEFAULT CHARACTER SET=utf8;
+
+
+-- This table defines the tags available to an article.
+CREATE TABLE tags_article (
+    id INT(10) UNSIGNED NOT NULL AUTO_INCREMENT,
+    tag VARCHAR(30) NOT_NULL,
+    created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    updated_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+) ENGINE=INNODB DEFAULT CHARACTER SET=utf8;
+
+
+CREATE TABLE articles (
+    id INT(10) UNSIGNED NOT NULL AUTO_INCREMENT,
+    author INT(10) UNSIGNED NOT NULL,
+    content MEDIUMTEXT NOT NULL,
+    content_is_markdown BOOLEAN NOT NULL DEFAULT FALSE,
+    created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    updated_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+) ENGINE=INNODB DEFAULT CHARACTER SET=utf8;
+
+
+-- this table assigns tags to articles.
+CREATE TABLE articles_tags (
+    article_id INT(10) UNSIGNED NOT NULL,
+    tag INT(10) UNSIGNED NOT NULL,
+    created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    updated_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+) ENGINE=INNODB DEFAULT CHARACTER SET=utf8;
+
+
+
+-- LISTINGS -------------------------------------------------------------------
+
+CREATE TABLE store_listing (
+    id INT(10) UNSIGNED NOT NULL AUTO_INCREMENT,
+    item_id INT(10) UNSIGNED NOT NULL,
+    unit INT(10) UNSIGNED NOT NULL,
+    list_price INT(10) UNSIGNED NOT NULL,
+    is_active BOOLEAN NOT NULL DEFAULT TRUE,
+    created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    updated_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+) ENGINE=INNODB DEFAULT CHARACTER SET=utf8;
+
+
+
+
+
+
+
+
+
+
+
+
 
 CREATE TABLE heights (
     user_id INT(10) UNSIGNED NOT NULL,
