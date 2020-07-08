@@ -9,6 +9,7 @@ import List from '../../component/list';
 import {
     attemptLoginRequest,
 } from '../../actions';
+import { fetchListItems } from '../../actions/list-actions';
 import Sorter from '../../lib/js/sorter';
 import Filter from '../../lib/js/filter';
 import { EQUIPMENT_LIST } from '../../config/lists';
@@ -44,10 +45,14 @@ const mapStateToProps = function(state) {
     return {
 
         ...equip,
-        items: getVisibleEquipment(equip.items, equip.filters, equip.sortOrder),
+        items: getVisibleEquipment(equip.items, equip.filters, equip.sort),
         itemClass: 'equipment-list-item',
         listType: EQUIPMENT_LIST,
         getListItemContent: getEquipmentListItemContent,
+        breadcrumbs: [
+            { home: '/'},
+            { equipment: '/equipment'},
+        ]
     }
 };
 
@@ -56,7 +61,8 @@ const mapDispatchToProps = function(dispatch) {
     return {
 
         fetch: () => {
-            dispatch(fetchAllEquipment());
+            var fetch_url = "/index.php?ctrl=public&actn=fetchAllEquipment";
+            dispatch(fetchListItems(EQUIPMENT_LIST, fetch_url));
         },
     };
 };

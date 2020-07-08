@@ -7,8 +7,8 @@ export const getCriterion = (list, filter, value) => {
 
     switch (list) {
 
-        case BEAN_LIST:
-            return getBeanCriterion(filter, value);
+        case BEANS_LIST:
+            return getBeansCriterion(filter, value);
 
         case WATER_LIST:
             return getWaterCriterion(filter, value);
@@ -24,7 +24,7 @@ export const getCriterion = (list, filter, value) => {
     }
 }
 
-export const getBeanCriterion = (filter, value) => {
+export const getBeansCriterion = (filter, value) => {
 
     switch (filter) {
 
